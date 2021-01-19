@@ -7,7 +7,7 @@ The font is loosely based on Noto Color Emoji. All images are scaled down to
 
 Here's an example of what it looks like:
 
-![image](/uploads/9217607a33b127de0de303c734be4edc/image.png)
+![image](https://gitlab.com/olegdiominov/imagefont/uploads/9217607a33b127de0de303c734be4edc/image.png)
 
 My original use case for this font is displaying arbitrary images in `i3bar`
 (e.g. tiny album art for the currently playing song).
