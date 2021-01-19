@@ -6,7 +6,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('image_files', nargs='+', type=FileType('rb'),
                         metavar='image')
-    parser.add_argument('-o', dest='output_file', type=FileType('w'),
+    parser.add_argument('-o', dest='output_file', type=FileType('wb'),
                         required=True)
     args = parser.parse_args()
     font = ImageFont()

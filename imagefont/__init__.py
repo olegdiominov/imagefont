@@ -3,6 +3,7 @@ from io import BytesIO
 from pathlib import Path
 from xml.etree import ElementTree
 
+from fontTools import ttx
 from PIL import Image
 
 
@@ -76,4 +77,9 @@ class ImageFont:
             vmtx_entry.attrib['name'] = glyph_name
             vmtx.append(vmtx_entry)
 
-        template.write(output_file, encoding='unicode', xml_declaration=True)
+        ttx_buffer = BytesIO()
+        template.write(ttx_buffer)
+        ttx_buffer.seek(0)
+        ttx.ttCompile(ttx_buffer, output_file, ttx.Options(
+            [('--recalc-timestamp', False)], 1
+        ))
