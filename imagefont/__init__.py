@@ -23,18 +23,39 @@ class ImageFont:
 
     def write(self, output_file):
         template = ElementTree.parse(Path(__file__).parent / 'template.ttx')
-        glyph_order = template.find('GlyphOrder')
-        hmtx = template.find('hmtx')
-        cmap14 = template.find('cmap/cmap_format_14')
-        cmap12 = template.find('cmap/cmap_format_12')
-        cbdt = template.find('CBDT/strikedata')
-        eblc = template.find('CBLC/strike/eblc_index_sub_table_1')
-        vmtx = template.find('vmtx')
 
-        template.find('maxp/numGlyphs').text = str(len(self.glyphs) + 2)
+        glyph_order = template.find('GlyphOrder')
+        glyph_order_entry_template = glyph_order.find('GlyphID[last()]')
+        glyph_order.remove(glyph_order_entry_template)
+
+        hmtx = template.find('hmtx')
+        hmtx_entry_template = hmtx.find('mtx[last()]')
+        hmtx.remove(hmtx_entry_template)
+
+        cmap14 = template.find('cmap/cmap_format_14')
+        cmap14_entry_template = cmap14.find('map')
+        cmap14.remove(cmap14_entry_template)
+
+        cmap12 = template.find('cmap/cmap_format_12')
+        cmap12_entry_template = cmap12.find('map')
+        cmap12.remove(cmap12_entry_template)
+
+        cbdt = template.find('CBDT/strikedata')
+        cbdt_entry_template = cbdt.find('cbdt_bitmap_format_17')
+        cbdt.remove(cbdt_entry_template)
+
+        eblc = template.find('CBLC/strike/eblc_index_sub_table_1')
+        eblc_entry_template = eblc.find('glyphLoc')
+        eblc.remove(eblc_entry_template)
+
+        vmtx = template.find('vmtx')
+        vmtx_entry_template = vmtx.find('mtx[last()]')
+        vmtx.remove(vmtx_entry_template)
+
+        template.find('maxp/numGlyphs').text = str(len(self.glyphs) + 1)
         template.find(
             'CBLC/strike/bitmapSizeTable/endGlyphIndex'
-        ).attrib['value'] = str(len(self.glyphs) + 1)
+        ).attrib['value'] = str(len(self.glyphs))
 
         for i, glyph in enumerate(self.glyphs):
             image_buffer = BytesIO()
@@ -42,38 +63,38 @@ class ImageFont:
             image_buffer.seek(0)
             raw_image_data = image_buffer.read().hex()
 
-            code_point = 0xe001 + i
+            code_point = 0xe000 + i
             glyph_name = 'uni{:X}'.format(code_point)
 
-            glyph_order_entry = deepcopy(glyph_order.find('GlyphID'))
-            glyph_order_entry.attrib['id'] = str(i + 2)
+            glyph_order_entry = deepcopy(glyph_order_entry_template)
+            glyph_order_entry.attrib['id'] = str(i + 1)
             glyph_order_entry.attrib['name'] = glyph_name
             glyph_order.append(glyph_order_entry)
 
-            hmtx_entry = deepcopy(hmtx.find('mtx'))
+            hmtx_entry = deepcopy(hmtx_entry_template)
             hmtx_entry.attrib['name'] = glyph_name
             hmtx.append(hmtx_entry)
 
-            cmap14_entry = deepcopy(cmap14.find('map'))
+            cmap14_entry = deepcopy(cmap14_entry_template)
             cmap14_entry.attrib['uv'] = hex(code_point)
             cmap14.append(cmap14_entry)
 
-            cmap12_entry = deepcopy(cmap12.find('map'))
+            cmap12_entry = deepcopy(cmap14_entry_template)
             cmap12_entry.attrib['code'] = hex(code_point)
             cmap12_entry.attrib['name'] = glyph_name
             cmap12.append(cmap12_entry)
 
-            cbdt_entry = deepcopy(cbdt.find('cbdt_bitmap_format_17'))
+            cbdt_entry = deepcopy(cbdt_entry_template)
             cbdt_entry.attrib['name'] = glyph_name
             cbdt_entry.find('rawimagedata').text = raw_image_data
             cbdt.append(cbdt_entry)
 
-            eblc_entry = deepcopy(eblc.find('glyphLoc'))
-            eblc_entry.attrib['id'] = str(i + 2)
+            eblc_entry = deepcopy(eblc_entry_template)
+            eblc_entry.attrib['id'] = str(i + 1)
             eblc_entry.attrib['name'] = glyph_name
             eblc.append(eblc_entry)
 
-            vmtx_entry = deepcopy(vmtx.find('mtx'))
+            vmtx_entry = deepcopy(vmtx_entry_template)
             vmtx_entry.attrib['name'] = glyph_name
             vmtx.append(vmtx_entry)
 
